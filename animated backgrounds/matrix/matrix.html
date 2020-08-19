@@ -1,0 +1,176 @@
+<html>
+<head>
+    <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            color: black;
+            overflow-y: hidden;
+            overflow-x: hidden;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        #matrix {
+            height: 100%;
+            width: 100%;
+            border: 0;
+            table-layout: fixed;
+        }
+
+        td {
+            font-size: 15px;
+            padding: 0
+        }
+    </style>
+</head>
+<body>
+<table id="matrix"></table>
+</body>
+<script>
+    const ticktime = 1000 / 15;
+    const cellHeight = 20;
+    const cellWidth = 11;
+
+    const rowCount = Math.floor(window.innerHeight / cellHeight);
+    const colCount = Math.floor(window.innerWidth / cellWidth) - 2;
+
+    const staticObjects = {
+        boxes: []
+    }
+	
+	const mainColorRGB = '0,255,0'
+
+    // -----------------------------------------------------------------------------
+    //
+    //          Algorithm hell starts here... Do not enter.
+    //
+    // -----------------------------------------------------------------------------
+
+
+    let matrix = document.getElementById("matrix");
+
+
+    // Create the cell structure
+    let row;
+    for (let r = 0; r < rowCount; r++) {
+        row = "<tr>"
+
+        for (let c = 0; c < colCount; c++) {
+            let cell = "<td>0</td>"
+
+            row += cell;
+        }
+
+        row += "</tr>"
+        matrix.innerHTML += row;
+    }
+
+    // Create initial pillars
+    function generateNewPillar(col) {
+        return {
+            head: {
+                col: col,
+                row: -Math.floor(Math.random() * rowCount * 0.5)
+            },
+            len: 4 + Math.floor(Math.random() * rowCount * 0.3),
+            offset: Math.floor(Math.random() * rowCount * 0.4)
+        };
+    }
+
+    let pillars = []
+    for (let initColumn = 0; initColumn < colCount; initColumn++) {
+        pillars.push(generateNewPillar(initColumn))
+    }
+
+    // Initializing a twin of the dom for performance reasons.
+    let grid = [];
+    const rows = document.querySelectorAll("tr");
+    for (let r = 0; r < rowCount; r++) {
+        let row = rows[r].querySelectorAll("td");
+        grid[r] = []
+        for (let c = 0; c < colCount; c++) {
+            grid[r][c] = row[c];
+        }
+    }
+
+    // Initialize static objects
+    function blockCell(row, col) {
+        grid[row][col].dataset.blocked = "true";
+        grid[row][col].style.color = "white";
+        grid[row][col].innerText = "█";
+		grid[row][col].innerText = "X";
+    }
+
+    staticObjects.boxes.forEach(box => {
+        for(let x = 0; x <= box.width; x++){
+            blockCell(box.anchor.y, box.anchor.x + x)
+            blockCell(box.anchor.y + box.height, box.anchor.x + x)
+        }
+        for(let y = 0; y < box.height; y++){
+            blockCell(box.anchor.y + y, box.anchor.x)
+            blockCell(box.anchor.y + y, box.anchor.x + box.width)
+        }
+    })
+
+    // ---------------------- INIT FINISHED -------------------------------------------------
+
+    function setColor(col, row, color) {
+        if (row >= rowCount || col >= colCount || row < 0 || col < 0 || grid[row][col].dataset.blocked === "true") return;
+        const cell = grid[row][col];
+        cell.style.color = color;
+        if (color === "black") {
+            cell.dataset.inuse = "false";
+        } else {
+            cell.dataset.inuse = "true"
+        }
+    }
+
+    function generateRandomChar() {
+        let ascii_low = 21;
+        let ascii_high = 290;
+
+        return String.fromCharCode(Math.floor((Math.random() * (ascii_high - ascii_low)) + ascii_low));
+    }
+
+    setInterval(() => {
+        // Paint the pillars
+        pillars.forEach(pillar => {
+            setColor(pillar.head.col, pillar.head.row, "white");
+            for (let l = 1; l < pillar.len; l++) {
+                let colourRow = pillar.head.row - l;
+                if (colourRow < 0) {
+                    break;
+                } else {
+                    setColor(pillar.head.col, colourRow, "rgba(" + mainColorRGB + "," + Math.pow(pillar.len / l, 3) / 10 + ")")
+                }
+            }
+            setColor(pillar.head.col, pillar.head.row - pillar.len, "black")
+
+            pillar.head.row++;
+        });
+
+        // Remove invisible pillars
+        let nextPillars = []
+        for (let i = 0; i < pillars.length; i++) {
+
+            // If head of pillar has reached lowest 70% and there has no following pillar been generated for this column
+            if (pillars[i].head.row > rowCount * 0.7
+                && pillars.filter(pillar => pillar.head.col === pillars[i].head.col).length < 2) {
+                nextPillars.push(generateNewPillar(pillars[i].head.col));
+            }
+
+            if (pillars[i].head.row - pillars[i].len < rowCount) {
+                nextPillars.push(pillars[i]);
+            }
+        }
+        pillars = nextPillars;
+
+        // Replace cell content in every tick
+        document.querySelectorAll("td[data-inuse=true]:not([blocked=true])").forEach(element => {
+            element.innerText = generateRandomChar();
+        });
+    }, ticktime)
+</script>
+</html>
