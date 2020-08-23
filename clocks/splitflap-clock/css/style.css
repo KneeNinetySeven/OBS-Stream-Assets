@@ -1,0 +1,9 @@
+.container {
+    width: 390px;
+
+    padding: 30px;
+    border: 10px solid #ccc;
+    background-color: #222;
+    border-radius: 30px;
+    box-shadow: 0 0 12px 4px #000 inset;
+}

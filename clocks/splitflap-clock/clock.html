@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/flapper.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script src="js/jshashtable-2.1/jshashtable.js"></script>
+    <script src="js/jquery-transform.js"></script>
+    <script src="js/jsnumberformatter.js"></script>
+    <script src="js/jquery.flapper.js"></script>
+
+</head>
+<body>
+
+<div class="container">
+    <input id="display" class="XL">
+</div>
+
+
+<script>
+    "use strict";
+
+    var options = {
+        width: 5,
+        align: 'right',
+        chars_preset: 'num',
+        timing: 250,
+        transform: true
+    };
+
+    let flapper = $('#display').flapper(options);
+
+    var refreshRate = 250;
+
+    setInterval(function () {
+        flapper.val(getCurrentTimeString()).change();
+    }, refreshRate);
+</script>
+<script>
+    var getCurrentTimeString = function () {
+        var date = new Date();
+
+        var min = makeProperTimeString(date.getMinutes());
+        var hrs = makeProperTimeString(date.getHours());
+
+        return hrs + ":" + min;
+    };
+
+    var makeProperTimeString = function (val) {
+        console.log(val);
+        if (val.toString().length === 1) {
+            return "0" + val;
+        } else {
+            return val;
+        }
+    }
+</script>
+</body>
+</html>
