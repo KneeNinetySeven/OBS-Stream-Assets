@@ -10,3 +10,5 @@ _The black background is just there due to the recording. The clocks background 
 
 Ideally embedded with the dimensions 500 x 200 (w x h).
 But attention: Keep the subfolders 'js' and 'css' next to the html file! Otherwise nothing will work anymore.
+
+Credits also go to the author of the now archived JQuery Splitflap [library](https://github.com/zemax/jquery-splitFlap)
