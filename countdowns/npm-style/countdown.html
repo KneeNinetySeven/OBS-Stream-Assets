@@ -1,0 +1,122 @@
+<html lang="EN">
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Lekton" rel="stylesheet">
+    <title></title>
+</head>
+<body>
+<div>
+    <div id="inputs" style="font-family: 'Lekton', sans-serif; text-align: center; font-weight: 900; font-size: 3em;">
+        <form>
+            <label for="minutes">Minutes: </label>
+            <input id="minutes" type="number"
+                   style="font-family: 'Lekton', sans-serif; text-align: center; font-weight: 900; font-size: 1em;"/>
+            <label for="seconds">Seconds: </label>
+            <input id="seconds" type="number"
+                   style="font-family: 'Lekton', sans-serif; text-align: center; font-weight: 900; font-size: 1em;"/>
+            <br/>
+            <hr>
+            <button id="start" onclick="onStart()" type="button"
+                    style="font-family: 'Lekton', sans-serif; text-align: center; font-weight: 900; font-size: 1em;">
+                Start Countdown
+            </button>
+        </form>
+    </div>
+    <div id="bar" style="font-family: 'Lekton', sans-serif; text-align: center; font-weight: 900; font-size: 3em;">
+        <h1 id="header">Wheeeeoooo wheeeeeooooo wheeeeoooo</h1>
+        <span id="progressBar"></span>
+    </div>
+</div>
+<script>
+    "use strict";
+    var runProgressBar = function (domObjectId, domHeaderId, secondsUntilLoaded) {
+        var element = {};
+        element.dom = {};
+        element.dom.object = document.getElementById(domObjectId);
+        element.dom.header = document.getElementById(domHeaderId);
+        element.curr = 0;
+        element.max = secondsUntilLoaded;
+
+        //element.dom.header.innerText = "Stream is loading. Please stay calm.";
+
+        function stepUp() {
+            var dashLen = getWindowWith();
+            console.log(getWindowWith());
+            if (element.max > element.curr) {
+                element.curr += 0.25;
+                updateAppearance(element, dashLen);
+                setTimeout(stepUp, 250);
+            } else {
+                putFinalAppearance(element, dashLen);
+            }
+        }
+
+        stepUp();
+    };
+
+    function drawDash(element, dashLenTotal) {
+        var dash = "";
+        for (let i = 0; i < element.curr * (dashLenTotal / element.max); i++) {
+            dash += "=";
+        }
+        var spacer = "";
+        while (dash.length + spacer.length < dashLenTotal) {
+            spacer += "_";
+        }
+        return {dash, spacer};
+    }
+
+    var index = 0;
+
+    function nextSpinner() {
+        var spinnerStates = ["|", "/", "-", "\\"];
+        if (index >= spinnerStates.length - 1) {
+            index = 0;
+        } else {
+            index++;
+        }
+        return spinnerStates[index];
+    }
+
+    var updateAppearance = function (element, dashLen) {
+        var time = buildTimeString(element);
+        var dashLenEffective = dashLen - time.length - 1;
+        var {dash, spacer} = drawDash(element, dashLenEffective);
+        element.dom.object.innerText = `${nextSpinner()} [${dash}>${spacer}] ${time}`;
+    };
+
+    var buildTimeString = function (element) {
+        var secsLeft = element.max - element.curr;
+        if (secsLeft > 60) {
+            return (secsLeft / 60).toFixed(0) + " min left"
+        } else {
+            return secsLeft.toFixed(0) + " s left";
+        }
+    };
+
+    var putFinalAppearance = function (element, dashLen) {
+        var done = "[X]";
+        var go = "done.";
+        var dashLenEffective = dashLen - done.length - go.length;
+        var {dash, spacer} = drawDash(element, dashLenEffective);
+        element.dom.header.innerText = "Stream will begin soon.";
+        element.dom.object.innerText = `${done} [${dash}=] ${go}`
+    };
+
+    var getWindowWith = function () {
+        return window.innerWidth / parseFloat(getComputedStyle(document.querySelector('body'))['font-size']) / 3;
+    }
+
+</script>
+<script>
+    var onStart = function () {
+        document.getElementById("inputs").hidden = true;
+        document.getElementById("bar").hidden = false;
+        var sec = document.getElementById("seconds").valueOf().value;
+        var min = document.getElementById("minutes").valueOf().value;
+        var totalSeconds = min * 60 + (sec - 0);
+        console.log({min, sec, totalSeconds});
+        runProgressBar('progressBar', 'header', totalSeconds);
+    };
+</script>
+</body>
+</html>
