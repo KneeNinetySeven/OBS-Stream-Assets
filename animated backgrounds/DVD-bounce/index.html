@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        body {
+            margin: 0;
+			overflow: hidden;
+        }
+
+        #canvas {
+            mix-blend-mode: multiply;
+            filter: invert(90%);
+        }
+    </style>
+</head>
+<body>
+<img id="logo" src="DVD_logo.png" hidden alt="">
+<script>
+    window.onload = function () {
+
+		var canvas = document.createElement("CANVAS");
+		canvas.height = window.innerHeight;
+		canvas.width = window.innerWidth;
+		canvas.id = 'canvas';
+		canvas.style = 'background: rgba(135,135,135,0.5)';
+		document.body.appendChild(canvas);
+		
+		var ctx = canvas.getContext("2d");
+        var img = document.getElementById("logo");
+        var x = canvas.width / 2;
+        var y = canvas.height / 2;
+        var dx = 1;
+        var dy = -1;
+
+        let imgWidth = 400;
+        let imgHeight = 200;
+        var drawBall = function () {
+            ctx.beginPath();
+            ctx.drawImage(img, x, y, imgWidth, imgHeight);
+            ctx.fill();
+            ctx.closePath();
+        };
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBall();
+
+            if (x + dx > canvas.width - imgWidth || x + dx < 0) {
+                dx = -dx;
+            }
+            if (y + dy > canvas.height - imgHeight || y + dy < 0) {
+                dy = -dy;
+            }
+
+            x += dx;
+            y += dy;
+        }
+
+        setInterval(draw, 10);
+    }
+</script>
+</body>
+</html>
